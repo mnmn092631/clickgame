@@ -3,8 +3,8 @@ import PopUp from "./popup.js";
 import Game from "./game.js";
 
 let gameDuration = +prompt("게임 시간을 입력해주세요(초 단위)");
-let carrotCount = +prompt("당근 갯수를 입력해주세요");
-let bugCount = +prompt("벌레 갯수를 입력해주세요");
+let carrotCount = +prompt("당근 개수를 입력해주세요");
+let bugCount = +prompt("벌레 개수를 입력해주세요");
 
 const gameFinishBanner = new PopUp();
 
