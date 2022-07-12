@@ -1,9 +1,41 @@
 "use strict";
 
 import * as sound from "./sound.js";
-import ItemBox from "./itembox.js";
+import { ItemBox, ItemType } from "./itembox.js";
 
-export default class Game {
+export const Reason = Object.freeze({
+  win: "win",
+  lose: "lose",
+  cancel: "cancel",
+});
+
+// Builder Pattern
+export class GameBuilder {
+  gameDuration(duration) {
+    this.gameDuration = duration;
+    return this;
+  }
+
+  carrotCount(num) {
+    this.carrotCount = num;
+    return this;
+  }
+
+  bugCount(num) {
+    this.bugCount = num;
+    return this;
+  }
+
+  build() {
+    return new Game(
+      this.gameDuration, //
+      this.carrotCount, //
+      this.bugCount
+    );
+  }
+}
+
+class Game {
   constructor(gameDuration, carrotCount, bugCount) {
     this.gameDuration = gameDuration;
     this.carrotCount = carrotCount;
@@ -22,7 +54,7 @@ export default class Game {
 
     this.playBtn.addEventListener("click", () => {
       if (this.started) {
-        this.stop();
+        this.stop(Reason.cancel);
       } else {
         this.start();
       }
@@ -42,40 +74,26 @@ export default class Game {
     this.stopIcon();
   }
 
-  stop() {
+  stop(reason) {
     this.started = false;
-    sound.stopBg();
-    sound.playAlert();
-    this.playBtn.classList.add("hidden");
     this.stopTimer();
-    this.onGameStop && this.onGameStop("cancel");
-  }
-
-  finish(win) {
-    this.started = false;
     this.playBtn.classList.add("hidden");
-    if (win) {
-      sound.playWin();
-    } else {
-      sound.playBug();
-    }
-    this.stopTimer();
     sound.stopBg();
-    this.onGameStop && this.onGameStop(win ? "win" : "lose");
+    this.onGameStop && this.onGameStop(reason);
   }
 
   onItemClick = (item) => {
     if (!this.started) {
       return;
     }
-    if (item === "carrot") {
+    if (item === ItemType.carrot) {
       this.score++;
       this.scoreText.innerHTML = `${this.carrotCount - this.score}`;
       if (this.score === this.carrotCount) {
-        this.finish(true);
+        this.stop(Reason.win);
       }
-    } else if (item === "bug") {
-      this.finish(false);
+    } else if (item === ItemType.bug) {
+      this.stop(Reason.lose);
     }
   };
 
@@ -91,7 +109,7 @@ export default class Game {
     this.timer = setInterval(() => {
       if (remainingTimeSec <= 0) {
         clearInterval(this.timer);
-        this.finish(this.score === this.carrotCount);
+        this.stop(this.score === this.carrotCount ? Reason.win : Reason.lose);
         return;
       }
       this.updateTimerText(--remainingTimeSec);

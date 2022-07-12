@@ -2,7 +2,12 @@
 
 import * as sound from "./sound.js";
 
-export default class ItemBox {
+export const ItemType = Object.freeze({
+  carrot: "carrot",
+  bug: "bug",
+});
+
+export class ItemBox {
   constructor(carrotCount, bugCount) {
     this.carrotCount = carrotCount;
     this.bugCount = bugCount;
@@ -45,9 +50,9 @@ export default class ItemBox {
     if (target.className === "carrot") {
       sound.playCarrot();
       target.remove();
-      this.onItemClick && this.onItemClick("carrot");
+      this.onItemClick && this.onItemClick(ItemType.carrot);
     } else if (target.className === "bug") {
-      this.onItemClick && this.onItemClick("bug");
+      this.onItemClick && this.onItemClick(ItemType.bug);
       sound.playBug();
     }
   };
